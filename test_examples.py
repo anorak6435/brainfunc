@@ -38,3 +38,21 @@ def test_decrement_ptr():
     run.interpret(code)
 
     assert run.cellptr == run.CELLCOUNT - 4, f"Unexpected value in wrapping cellptr to the end of the list"
+
+def test_inmemory_countdown():
+    code = "+++++>++++>+++>++>+"
+    run.interpret(code)
+
+    assert ( run.cells[0] == 5 and
+               run.cells[1] == 4 and
+               run.cells[2] == 3 and
+               run.cells[3] == 2 and
+               run.cells[4] == 1 ), f"Not all cells where incremented properly: '{run.cells[0:5]}'"
+
+def test_basic_output(capsys):
+    code = "++++++++++++++++++++++++++++++++++++++++++++++++.+.+.+.+.+.>++++++++++."
+    run.interpret(code)
+
+    out, err = capsys.readouterr()
+
+    assert out == "012345\n", "Did not print the right unicode values!"

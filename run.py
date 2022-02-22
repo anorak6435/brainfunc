@@ -15,6 +15,7 @@ class CMD(Enum):
     DEC_CELL = auto()
     DEC_PTR = auto()
     INC_PTR = auto()
+    PRINT = auto()
 
 # catch incomming code in interpret function
 def interpret(_code : str):
@@ -50,8 +51,10 @@ def tokenizer() -> Generator[Tuple[bool, CMD], None, Tuple[bool, str]]:
                 yield True, CMD.DEC_PTR
             case ">":
                 yield True, CMD.INC_PTR
+            case ".":
+                yield True, CMD.PRINT
             case _:
-                if code[codeptr] in "+-<>[]":
+                if code[codeptr] in "+-<>[].,":
                     raise Exception(f"'{code[codeptr]}' not recognised in tokenizer!")
 
         codeptr += 1
@@ -76,6 +79,8 @@ def build_tree(gen):
                     tree.append(TreeNode(CMD.DEC_PTR))
                 case CMD.INC_PTR:
                     tree.append(TreeNode(CMD.INC_PTR))
+                case CMD.PRINT:
+                    tree.append(TreeNode(CMD.PRINT))
                 case _:
                     raise Exception(f"unrecognised token by treebuilder: {token}")
     return tree
@@ -121,6 +126,8 @@ class Visitor:
                     cellptr += 1
                     if cellptr == CELLCOUNT:
                         cellptr = 0
+                case CMD.PRINT:
+                    print(chr(cells[cellptr]), end="")
                 case _:
                     raise Exception(f"Visitor can't handle node:{self.tree[tree_index]}")
             tree_index += 1
