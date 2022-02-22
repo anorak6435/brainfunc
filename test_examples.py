@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import run
 
-#def  test_hello_world(capsys):                                                                                           #
-    # code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++." #
-    # run.interpret(code)                                                                                                 #
-    #                                                                                                                     #
-    # out, err = capsys.readouterr()                                                                                      #
-    #
-    #assert out == "Hello World!\n", f"Expected Hello World! but got'{out}'"
+def test_hello_world(capsys):
+    code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
+    run.interpret(code)
+    out, err = capsys.readouterr()
+    assert out == "Hello World!\n", f"Expected Hello World!\n but got'{out}'"
 
 
 def test_increment_cell():
@@ -56,3 +54,28 @@ def test_basic_output(capsys):
     out, err = capsys.readouterr()
 
     assert out == "012345\n", "Did not print the right unicode values!"
+
+def test_basic_loop_abc_print(capsys):
+    code = "+++++[->+++++++++++++<]>.>>++++++++++."
+    run.interpret(code)
+
+    out, err = capsys.readouterr()
+
+    assert out == "A\n", f"Simple loop found '{out}' instead of 'A\n'"
+
+def test_complexer_hello_world(capsys):
+    code = """>++++++++[-<+++++++++>]<.>>+>-[+]++>++>+++[>[->+++<<+++>]<<]>-----.>->
++++..+++.>-.<<+[>[+>+]>>]<--------------.>>.+++.------.--------.>+.>+."""
+    run.interpret(code)
+
+    out, err = capsys.readouterr()
+
+    assert out == "Hello World!\n", "It is not the Hello World! you expected!"
+
+def test_basic_move_value(capsys):
+    code = "+++++[->+++++++++++++<]>   >>[-]<<[->>+<<] >> ."
+    run.interpret(code)
+
+    out, err = capsys.readouterr()
+
+    assert out == "A", "The A value was unsuccesfully moved!"

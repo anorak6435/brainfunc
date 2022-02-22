@@ -16,6 +16,8 @@ class CMD(Enum):
     DEC_PTR = auto()
     INC_PTR = auto()
     PRINT = auto()
+    LOOP = auto()
+    END_LOOP = auto()
 
 # catch incomming code in interpret function
 def interpret(_code : str):
@@ -53,6 +55,10 @@ def tokenizer() -> Generator[Tuple[bool, CMD], None, Tuple[bool, str]]:
                 yield True, CMD.INC_PTR
             case ".":
                 yield True, CMD.PRINT
+            case "[":
+                yield True, CMD.LOOP
+            case "]":
+                yield True, CMD.END_LOOP
             case _:
                 if code[codeptr] in "+-<>[].,":
                     raise Exception(f"'{code[codeptr]}' not recognised in tokenizer!")
@@ -65,9 +71,9 @@ def tokenizer() -> Generator[Tuple[bool, CMD], None, Tuple[bool, str]]:
 
 # building a parse tree from the source for lolz
 
-def build_tree(gen):
+def build_tree(gen, inloop=False):
     tree = []
-
+    inloop = inloop
     for has_token, token in gen:
         if has_token:
             match token:
@@ -81,6 +87,15 @@ def build_tree(gen):
                     tree.append(TreeNode(CMD.INC_PTR))
                 case CMD.PRINT:
                     tree.append(TreeNode(CMD.PRINT))
+                case CMD.LOOP:
+                    children = build_tree(gen, True) # get the commands inside the '['  ']' as children
+                    tree.append(TreeNode(CMD.LOOP, children))
+                case CMD.END_LOOP:
+                    if inloop:
+                        tree.append(TreeNode(CMD.END_LOOP))
+                        return tree
+                    else:
+                        raise Exception(f"On reaching '{token}' we found that we are not in a loop!")
                 case _:
                     raise Exception(f"unrecognised token by treebuilder: {token}")
     return tree
@@ -128,6 +143,17 @@ class Visitor:
                         cellptr = 0
                 case CMD.PRINT:
                     print(chr(cells[cellptr]), end="")
+                case CMD.LOOP:
+                    # if the current cell is 0 jump over the loop
+                    if cells[cellptr] != 0:
+                        # not zero so go though the values in loop
+                        loop_visit = Visitor(self.tree[tree_index].data)
+                        loop_visit.visit()
+                    # else the code continues
+                case CMD.END_LOOP:
+                    # if the byte at datapointer is non-zero repeat this tree of commands
+                    if cells[cellptr] != 0:
+                        tree_index = -1
                 case _:
                     raise Exception(f"Visitor can't handle node:{self.tree[tree_index]}")
             tree_index += 1
