@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import run
+import sys
+from io import StringIO
 
 def test_hello_world(capsys):
     code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
@@ -79,3 +81,19 @@ def test_basic_move_value(capsys):
     out, err = capsys.readouterr()
 
     assert out == "A", "The A value was unsuccesfully moved!"
+
+def test_char_in_test(monkeypatch):
+
+    def inner_func():
+        str_test = ""
+        count = 5
+        while count > 0:
+            c = sys.stdin.read(1)
+            str_test += c
+            count -= 1
+        return str_test
+
+    string_input = StringIO("hello")
+    monkeypatch.setattr('sys.stdin', string_input)
+
+    assert inner_func() == "hello", "Expected the string hello in characters!"
