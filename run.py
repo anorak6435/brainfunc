@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from enum import Enum, auto
 from typing import Generator, Tuple
+import sys
 
 # global vars used throughout the compiler
 code = None
@@ -161,7 +162,9 @@ class Visitor:
 
 # test some weard thing more manually
 if __name__ == "__main__":
-    code = "----"
-    interpret(code)
-
-    assert cells[0] == 256 - 4, "Run cells did not wrap rigth with decrementing!"
+    if len(sys.argv) == 2:
+        with open(sys.argv[1], "r") as f:
+            code = f.read()
+            interpret(code)
+    else:
+        raise Exception("Please add the filename inside the command line arguments!")
