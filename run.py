@@ -19,6 +19,7 @@ class CMD(Enum):
     PRINT = auto()
     LOOP = auto()
     END_LOOP = auto()
+    INPUT = auto()
 
 # catch incomming code in interpret function
 def interpret(_code : str):
@@ -60,6 +61,8 @@ def tokenizer() -> Generator[Tuple[bool, CMD], None, Tuple[bool, str]]:
                 yield True, CMD.LOOP
             case "]":
                 yield True, CMD.END_LOOP
+            case ",":
+                yield True, CMD.INPUT
             case _:
                 if code[codeptr] in "+-<>[].,":
                     raise Exception(f"'{code[codeptr]}' not recognised in tokenizer!")
@@ -97,6 +100,8 @@ def build_tree(gen, inloop=False):
                         return tree
                     else:
                         raise Exception(f"On reaching '{token}' we found that we are not in a loop!")
+                case CMD.INPUT:
+                    tree.append(TreeNode(CMD.INPUT))
                 case _:
                     raise Exception(f"unrecognised token by treebuilder: {token}")
     return tree
@@ -144,6 +149,11 @@ class Visitor:
                         cellptr = 0
                 case CMD.PRINT:
                     print(chr(cells[cellptr]), end="")
+                case CMD.INPUT:
+                    try:
+                        cells[cellptr] = ord(input())
+                    except EOFError:
+                        pass # "no change"
                 case CMD.LOOP:
                     # if the current cell is 0 jump over the loop
                     if cells[cellptr] != 0:

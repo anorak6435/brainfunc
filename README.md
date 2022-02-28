@@ -10,6 +10,7 @@ My 2022 try for a brainf*ck compiler!
 \[ start loop
 \] end loop
 \. print char
+\, input char
 !important: Make sure that along the way the program handles edge cases.
 
 Make the code structured / fun / BIG!
@@ -18,4 +19,9 @@ test_examples.py for the automated testing of the language
 
 inside of the examples folder there are programs bigger not to be tested.
 examples/
-    mandlebrot.bf
+    bottles.bf
+    fizzbuzz.bf
+    fibbo.bf
+    bell.bf
+    
+# Done! ;)
